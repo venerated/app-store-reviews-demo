@@ -9,7 +9,7 @@
     },
     "strict": true,
     "target": "esnext",
-    "types": ["vite/client"]
+    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"]
   },
   "exclude": ["node_modules"],
   "include": ["**/*.ts", "**/*.tsx", "vite-env.d.ts"]

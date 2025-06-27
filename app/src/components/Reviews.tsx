@@ -10,10 +10,16 @@ import styles from './reviews.module.scss'
 
 const TIMEFRAME = 48
 
+// This component allows the user to select an app from a dropdown menu,
+// fetches reviews for that app from the backend, filters them by a recent
+// timeframe, and displays them sorted by date.
 export default function Reviews() {
-  // App
   const [appId, setAppId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [reviews, setReviews] = useState<IReview[] | null>(null)
 
+  // Hardcoded list of popular apps to choose from, each with a label and its corresponding App Store ID
   const appOptions = [
     {
       label: 'ChatGPT (6448311069)',
@@ -57,20 +63,15 @@ export default function Reviews() {
     },
   ]
 
-  // Reviews
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [reviews, setReviews] = useState<IReview[] | null>(null)
-
   const handleError = (msg: string) => {
     console.error(msg)
     setError(msg)
   }
 
+  // Fetch reviews from backend whenever the selected app ID changes
   useEffect(() => {
     if (!appId) return
 
-    // Fetch reviews from backend
     const fetchReviews = async () => {
       setLoading(true)
       try {
@@ -96,9 +97,11 @@ export default function Reviews() {
     fetchReviews()
   }, [appId])
 
+  // Memoized computation of filtered and sorted reviews, only includes reviews
+  // newer than the configured timeframe (e.g. 48 hours).
+  // Sorted from most recent to oldest
   const filteredReviews = useMemo(() => {
     const currentUnixTime = Math.floor(Date.now() / 1000)
-    // Unix timestamp for set timeframe
     const earliestAllowedTimestamp = currentUnixTime - 60 * 60 * TIMEFRAME
     return reviews
       ?.filter((review) => {
@@ -109,22 +112,22 @@ export default function Reviews() {
       .sort((a, b) => {
         const aTime = getUnixTime(parseISO(a.updated))
         const bTime = getUnixTime(parseISO(b.updated))
-        // Sort descending
         return bTime - aTime
       })
   }, [reviews])
 
   return (
     <div className={styles.wrap}>
-      <h2>Reviews</h2>
-
+      <div className={styles.header}>
+        <h2>App Store Reviews</h2>
+      </div>
       <div className={styles.filters}>
         <Select
           id="app-options"
           label="App to Display Reviews For"
           options={appOptions}
           placeholder="Choose an App"
-          selected={appId}
+          value={appId}
           onChange={setAppId}
         />
       </div>
@@ -134,7 +137,7 @@ export default function Reviews() {
       ) : error ? (
         <div>{error}</div>
       ) : (
-        <div className={styles.reviews}>
+        <div className={styles.reviews} role="group" aria-label="Reviews">
           {filteredReviews?.length ? (
             filteredReviews.map((review) => (
               <Review key={review.id} data={review} />

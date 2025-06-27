@@ -5,14 +5,14 @@ const Select = ({
   label,
   options,
   placeholder,
-  selected,
+  value,
   onChange,
 }: {
   id: string
   label: string
   options: { label: string; value: string }[]
-  placeholder: string
-  selected: string | null
+  placeholder?: string
+  value: string | null
   onChange: (val: string) => void
 }) => {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -21,8 +21,15 @@ const Select = ({
 
   return (
     <div className={styles.wrap}>
-      <label htmlFor={id}>{label}</label>
-      <select id={id} value={selected ?? ''} onChange={handleChange}>
+      <label htmlFor={id} className={styles.label}>
+        {label}
+      </label>
+      <select
+        id={id}
+        value={value ?? ''}
+        onChange={handleChange}
+        className={styles.select}
+      >
         <option value="" disabled>
           {placeholder ?? 'Make a Selection'}
         </option>

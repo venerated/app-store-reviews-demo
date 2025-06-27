@@ -8,3 +8,12 @@
   display: flex;
   justify-content: space-between;
 }
+
+.author {
+  font-weight: 600;
+}
+
+.stars {
+  display: flex;
+  gap: 1px;
+}
