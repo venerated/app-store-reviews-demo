@@ -23,3 +23,7 @@ go.work.sum
 
 # Cache
 cache/
+
+/tmp/
+tmp/
+*.log
