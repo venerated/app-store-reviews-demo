@@ -1,7 +1,7 @@
 {
-  "name": "app",
+  "name": "app-store-reviews-demo",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "date-fns": "^4.1.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
@@ -30,5 +31,9 @@
     "ts-api-utils": "^2.1.0",
     "typescript": "^5.8.3",
     "vite": "^7.0.0"
+  },
+  "packageManager": "yarn@4.9.2",
+  "engines": {
+    "node": "23.x"
   }
 }

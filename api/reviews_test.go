@@ -8,10 +8,8 @@ import (
 )
 
 func TestGetCachedReviews(t *testing.T) {
-	var cacheFilePath string = "cache/reviewsRss.json"
-
 	t.Run("err == nil and returns expected data", func(t *testing.T) {
-		data, err := getCachedReviews(cacheFilePath, mockReadFromCacheValidStruct)
+		data, err := getCachedReviews(testCacheFilePath, mockReadFromCacheValidStruct)
 
 		if err != nil {
 			t.Errorf("err not nil %v", err)
@@ -35,7 +33,7 @@ func TestGetCachedReviews(t *testing.T) {
 	})
 
 	t.Run("returns an error when file doesn't exist or is unreadable", func(t *testing.T) {
-		_, err := getCachedReviews(cacheFilePath, mockReadFromCacheFileDoesntExistOrUnreadable)
+		_, err := getCachedReviews(testCacheFilePath, mockReadFromCacheFileDoesntExistOrUnreadable)
 
 		got := err.Error()
 		want := "error in getCachedReviews while getting cache file: file doesn't exist or is unreadable"
@@ -47,11 +45,9 @@ func TestGetCachedReviews(t *testing.T) {
 }
 
 func TestGetUpdatedData(t *testing.T) {
-	var cacheFilePath string = "cache/reviewsRss.json"
-
 	t.Run("err == nil and returns expected data", func(t *testing.T) {
 		resp := mockHTTPResponse(testRssJson, 200)
-		data, err := getUpdatedData(cacheFilePath, resp, mockSaveToCacheSuccess)
+		data, err := getUpdatedData(testCacheFilePath, resp, mockSaveToCacheSuccess)
 
 		if err != nil {
 			t.Errorf("err not nil %v", err)
@@ -67,7 +63,7 @@ func TestGetUpdatedData(t *testing.T) {
 
 	t.Run("err == nil and returns expected data when saving cache fails", func(t *testing.T) {
 		resp := mockHTTPResponse(testRssJson, 200)
-		data, err := getUpdatedData(cacheFilePath, resp, mockSaveToCacheError)
+		data, err := getUpdatedData(testCacheFilePath, resp, mockSaveToCacheError)
 
 		if err != nil {
 			t.Errorf("err not nil %v", err)
@@ -83,7 +79,7 @@ func TestGetUpdatedData(t *testing.T) {
 
 	t.Run("returns an error when data is malformed", func(t *testing.T) {
 		resp := mockHTTPResponse("???", 200)
-		_, err := getUpdatedData(cacheFilePath, resp, mockSaveToCacheSuccess)
+		_, err := getUpdatedData(testCacheFilePath, resp, mockSaveToCacheSuccess)
 
 		got := err.Error()
 		want := "error in getUpdatedData while decoding JSON: invalid character '?' looking for beginning of value"
@@ -95,10 +91,8 @@ func TestGetUpdatedData(t *testing.T) {
 }
 
 func TestGetAppStoreRss(t *testing.T) {
-	var cacheFilePath string = "cache/reviewsRss.json"
-
 	testGetAppStoreRssDeps := GetAppStoreRssDeps{
-		CacheFilePath:        cacheFilePath,
+		CacheFilePath:        testCacheFilePath,
 		ClientFunc:           mockCustomClient,
 		GetCachedReviewsFunc: mockGetCachedReviewsSuccess,
 		GetUpdatedDataFunc:   mockGetUpdatedData,
@@ -160,10 +154,9 @@ func TestGetAppStoreRss(t *testing.T) {
 }
 
 func TestGetData(t *testing.T) {
-	var cacheFilePath string = "cache/reviewsRss.json"
-
 	testGetDataDeps := GetDataDeps{
-		CacheFilePath:        cacheFilePath,
+		AppId:                testAppId,
+		CacheFilePath:        testCacheFilePath,
 		GetAppStoreRssFunc:   mockGetAppStoreRssSuccess,
 		ClientFunc:           mockCustomClient,
 		GetCachedReviewsFunc: mockGetCachedReviewsSuccess,

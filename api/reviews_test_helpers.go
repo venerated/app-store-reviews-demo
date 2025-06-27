@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+var testAppId = "595068606"
+
+var testCacheFilePath = "cache/reviews_" + testAppId + ".json"
+
 var testEntry = Entry{
 	ID: Label{
 		Label: "12802724742",

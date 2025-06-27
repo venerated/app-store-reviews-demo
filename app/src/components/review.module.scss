@@ -1,0 +1,10 @@
+.wrap {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 5px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+}

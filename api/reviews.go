@@ -75,6 +75,7 @@ func getUpdatedData(cacheFilePath string, resp *http.Response, saveToCacheFunc S
 }
 
 type GetAppStoreRssDeps struct {
+	AppId                string
 	CacheFilePath        string
 	ClientFunc           CustomClient
 	GetCachedReviewsFunc GetCachedReviews
@@ -90,7 +91,7 @@ type GetAppStoreRss func(lastUpdated string, deps GetAppStoreRssDeps) (RssRespon
 // Uses cache file if data hasn't changed.
 // Fetches new data if cache file doesn't exist/is unreadable.
 func getAppStoreRss(lastUpdated string, deps GetAppStoreRssDeps) (RssResponse, error) {
-	var rssUrl = "https://itunes.apple.com/us/rss/customerreviews/id=595068606/sortBy=mostRecent/page=1/json"
+	var rssUrl = "https://itunes.apple.com/us/rss/customerreviews/id=" + deps.AppId + "/sortBy=mostRecent/page=1/json"
 
 	var customHeaders CustomHeaders = CustomHeaders{}
 
@@ -119,6 +120,7 @@ func getAppStoreRss(lastUpdated string, deps GetAppStoreRssDeps) (RssResponse, e
 }
 
 type GetDataDeps struct {
+	AppId                string
 	CacheFilePath        string
 	GetAppStoreRssFunc   GetAppStoreRss
 	ClientFunc           CustomClient
@@ -134,6 +136,7 @@ func getData(deps GetDataDeps) (RssResponse, error) {
 	cacheData, err := deps.ReadFromCacheFunc(deps.CacheFilePath)
 
 	getAppStoreRssDeps := GetAppStoreRssDeps{
+		AppId:                deps.AppId,
 		CacheFilePath:        deps.CacheFilePath,
 		ClientFunc:           deps.ClientFunc,
 		GetCachedReviewsFunc: deps.GetCachedReviewsFunc,
@@ -181,9 +184,16 @@ func formatReviews(data []Entry) []Review {
 // handleReviewsRequest is the Gin handler for the /reviews endpoint.
 // It fetches RSS data, formats the reviews, and returns them as JSON.
 func handleReviewsRequest(c *gin.Context) {
-	var cacheFilePath string = "cache/reviewsRss.json"
+	id := c.Query("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Missing id query parameter."})
+		return
+	}
+
+	var cacheFilePath string = "cache/reviews_" + id + ".json"
 
 	getDataDeps := GetDataDeps{
+		AppId:                id,
 		CacheFilePath:        cacheFilePath,
 		GetAppStoreRssFunc:   getAppStoreRss,
 		ClientFunc:           customHttpClient,

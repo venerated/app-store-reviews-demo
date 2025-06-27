@@ -1,10 +1,13 @@
-import React, { useState } from 'react'
+import React from 'react'
 import './App.scss'
+import Reviews from '@/components/Reviews'
 
 function App() {
-  const [count, setCount] = useState(0)
-
-  return <React.Fragment>App.tsx</React.Fragment>
+  return (
+    <React.Fragment>
+      <Reviews />
+    </React.Fragment>
+  )
 }
 
 export default App

@@ -1281,14 +1281,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"app@workspace:.":
+"app-store-reviews-demo@workspace:.":
   version: 0.0.0-use.local
-  resolution: "app@workspace:."
+  resolution: "app-store-reviews-demo@workspace:."
   dependencies:
     "@eslint/js": "npm:^9.29.0"
     "@types/react": "npm:^19.1.8"
     "@types/react-dom": "npm:^19.1.6"
     "@vitejs/plugin-react": "npm:^4.5.2"
+    date-fns: "npm:^4.1.0"
     eslint: "npm:^9.29.0"
     eslint-plugin-prettier: "npm:^5.5.1"
     eslint-plugin-react-dom: "npm:^1.52.2"
@@ -1481,6 +1482,13 @@ __metadata:
   version: 3.1.3
   resolution: "csstype@npm:3.1.3"
   checksum: 10c0/80c089d6f7e0c5b2bd83cf0539ab41474198579584fa10d86d0cafe0642202343cbc119e076a0b1aece191989477081415d66c9fefbf3c957fc2fc4b7009f248
+  languageName: node
+  linkType: hard
+
+"date-fns@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "date-fns@npm:4.1.0"
+  checksum: 10c0/b79ff32830e6b7faa009590af6ae0fb8c3fd9ffad46d930548fbb5acf473773b4712ae887e156ba91a7b3dc30591ce0f517d69fd83bd9c38650fdc03b4e0bac8
   languageName: node
   linkType: hard
 
