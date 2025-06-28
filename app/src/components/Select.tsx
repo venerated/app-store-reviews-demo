@@ -33,7 +33,7 @@ const Select = ({
         <option value="" disabled>
           {placeholder ?? 'Make a Selection'}
         </option>
-        {options?.length
+        {options.length
           ? options.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}

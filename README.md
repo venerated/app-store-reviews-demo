@@ -21,6 +21,8 @@ Demo app that fetches and caches reviews from the App Store, using a Go backend 
 
 ## Installation
 
+- Copy `app/.env.example` to `app/.env` or `app/.env.local`
+
 ### Using Makefile
 
 - Run `make` from root folder
@@ -44,3 +46,13 @@ Using `make` from the root folder to install and run is recommended, but if you 
 2. From the root folder, run `cd app && yarn dev`
 
 View the site at http://localhost:5173/
+
+## Tests
+
+### Backend
+
+1. From thr oot folder, run `cd api && go test -v ./...`
+
+### Frontend
+
+1. From the root folder, run `cd app && yarn test`

@@ -3,9 +3,12 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 import { globalIgnores } from 'eslint/config'
-
+import { fileURLToPath } from 'node:url'
+import path from 'node:path'
 import reactX from 'eslint-plugin-react-x'
 import reactDom from 'eslint-plugin-react-dom'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default tseslint.config([
   globalIgnores(['dist']),
@@ -25,8 +28,7 @@ export default tseslint.config([
     ],
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
+        project: [path.resolve(__dirname, 'tsconfig.json')],
       },
     },
   },

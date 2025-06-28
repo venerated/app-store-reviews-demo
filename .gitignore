@@ -1,8 +1,14 @@
+# This is a project-level file, /api and /app have their own .gitignore files
+# for the systems those directories use
+
+# macOS
+.DS_Store
+Thumbs.db
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj

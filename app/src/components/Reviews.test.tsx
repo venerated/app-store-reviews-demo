@@ -7,28 +7,48 @@ import {
 } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import Reviews from '@/components/Reviews'
-import { vi } from 'vitest'
+import { vi, type MockedFunction } from 'vitest'
+
+import type { IReview } from '@/types'
 
 // Mock data representing a typical review returned from the API
-const mockReviews = [
+const mockReviews: IReview[] = [
   {
     id: '1',
-    updated: new Date().toISOString(),
+    author: 'Tester',
     content: 'Great app!',
-    user: 'Tester',
+    rating: '5',
+    updated: new Date().toISOString(),
   },
 ]
+
+type TypedFetch<T> = (
+  input: RequestInfo | URL,
+  init?: RequestInit
+) => Promise<Response & { json(): Promise<T> }>
+
+function mockFetch<T>(payload: T): MockedFunction<TypedFetch<T>> {
+  const res = new Response(JSON.stringify(payload), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  }) as Response & { json(): Promise<T> }
+
+  // spyOn patches global.fetch and returns the mock
+  return vi
+    .spyOn(globalThis, 'fetch')
+    .mockResolvedValue(res) as unknown as MockedFunction<TypedFetch<T>>
+}
 
 // Before each test, mock the global fetch function to return a successful response
 // with the mockReviews array. This ensures consistent test data and isolates tests
 // from real network calls.
 beforeEach(() => {
-  global.fetch = vi.fn(() =>
-    Promise.resolve({
-      ok: true,
-      json: () => Promise.resolve(mockReviews),
-    })
-  ) as unknown as typeof fetch
+  mockFetch(mockReviews)
+})
+
+// Reset all mocked calls between tests
+afterEach(() => {
+  vi.restoreAllMocks()
 })
 
 /**
@@ -56,12 +76,7 @@ it('loads and displays reviews when app is selected', async () => {
  * - Asserts that the previously mocked review text does not appear
  */
 it('shows no reviews message if API returns empty array', async () => {
-  global.fetch = vi.fn(() =>
-    Promise.resolve({
-      ok: true,
-      json: () => Promise.resolve([]),
-    })
-  ) as unknown as typeof fetch
+  mockFetch<IReview[]>([])
 
   render(<Reviews />)
   const select = screen.getByRole('combobox')
@@ -79,9 +94,7 @@ it('shows no reviews message if API returns empty array', async () => {
  * - Confirms that error message is displayed
  */
 it('handles fetch errors gracefully', async () => {
-  global.fetch = vi.fn(() =>
-    Promise.reject(new Error('Fetch failed'))
-  ) as unknown as typeof fetch
+  vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Fetch failed'))
 
   render(<Reviews />)
 
@@ -105,15 +118,9 @@ it('handles fetch errors gracefully', async () => {
 it('does not show reviews older than 48 hours', async () => {
   const oldDate = new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString()
 
-  global.fetch = vi.fn(() =>
-    Promise.resolve({
-      ok: true,
-      json: () =>
-        Promise.resolve([
-          { id: '2', updated: oldDate, content: 'Old review', user: 'OldUser' },
-        ]),
-    })
-  ) as unknown as typeof fetch
+  mockFetch([
+    { id: '2', updated: oldDate, content: 'Old review', user: 'OldUser' },
+  ])
 
   render(<Reviews />)
   const select = screen.getByRole('combobox')
@@ -136,16 +143,10 @@ it('sorts reviews by updated date descending', async () => {
   const older = new Date(now.getTime() - 1000 * 60 * 60).toISOString()
   const newer = new Date(now.getTime()).toISOString()
 
-  global.fetch = vi.fn(() =>
-    Promise.resolve({
-      ok: true,
-      json: () =>
-        Promise.resolve([
-          { id: '1', updated: older, content: 'Older review', user: 'User1' },
-          { id: '2', updated: newer, content: 'Newer review', user: 'User2' },
-        ]),
-    })
-  ) as unknown as typeof fetch
+  mockFetch([
+    { id: '1', updated: older, content: 'Older review', user: 'User1' },
+    { id: '2', updated: newer, content: 'Newer review', user: 'User2' },
+  ])
 
   render(<Reviews />)
   const select = screen.getByRole('combobox')
@@ -167,20 +168,23 @@ it('sorts reviews by updated date descending', async () => {
  * - After resolving fetch, asserts that loading indicator disappears and reviews appear
  */
 it('shows loading indicator while fetching reviews', async () => {
-  // Placeholder function to resolve fetch later
-  let resolveFetch: () => void = () => {}
+  // will be set by the Promise below
+  let resolveFetch!: () => void
 
   // Create a promise that will resolve when resolveFetch is called
   const fetchPromise = new Promise((resolve) => {
-    resolveFetch = () =>
+    resolveFetch = () => {
       resolve({
         ok: true,
         json: () => Promise.resolve(mockReviews),
       })
+    }
   })
 
   // Mock fetch to return the above promise, delaying resolution
-  global.fetch = vi.fn(() => fetchPromise as any) as typeof fetch
+  vi.spyOn(globalThis, 'fetch').mockImplementation(
+    () => fetchPromise as unknown as Promise<Response>
+  )
 
   render(<Reviews />)
   const select = screen.getByRole('combobox')
@@ -202,14 +206,8 @@ it('shows loading indicator while fetching reviews', async () => {
  * - Renders the Reviews component without selecting an app
  * - Asserts that fetch was not called since no app was selected
  */
-it('does not fetch reviews until an app is selected', async () => {
-  const fetchSpy = vi.fn(() =>
-    Promise.resolve({
-      ok: true,
-      json: () => Promise.resolve(mockReviews),
-    })
-  )
-  global.fetch = fetchSpy as unknown as typeof fetch
+it('does not fetch reviews until an app is selected', () => {
+  const fetchSpy = mockFetch(mockReviews)
 
   render(<Reviews />)
 
@@ -223,12 +221,7 @@ it('does not fetch reviews until an app is selected', async () => {
  * - Waits to confirm that no reviews are displayed since no app was selected
  */
 it('handles invalid or missing app selection gracefully', async () => {
-  global.fetch = vi.fn(() =>
-    Promise.resolve({
-      ok: true,
-      json: () => Promise.resolve(mockReviews),
-    })
-  ) as unknown as typeof fetch
+  mockFetch(mockReviews)
 
   render(<Reviews />)
 

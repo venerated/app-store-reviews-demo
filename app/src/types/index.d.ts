@@ -1,7 +1,7 @@
 export interface IReview {
-  id: string
-  author: string
-  content: string
-  rating: string
-  updated: string
+  id: string | null
+  author: string | null
+  content: string | null
+  rating: string | null
+  updated: string | null
 }

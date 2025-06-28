@@ -79,22 +79,26 @@ export default function Reviews() {
           `${import.meta.env.VITE_API_URL}/reviews?id=${appId}`
         )
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
+          throw new Error(`HTTP error! status: ${String(response.status)}`)
         }
-        const result = await response.json()
+        const result = (await response.json()) as IReview[]
         setReviews(result)
       } catch (err: unknown) {
         if (err instanceof Error) {
           handleError(`An error occured: ${err.message}`)
         } else {
-          handleError(`An unexpected error occured: ${err}`)
+          handleError(
+            `An unexpected error occured: ${
+              typeof err === 'string' ? err : JSON.stringify(err)
+            }`
+          )
         }
       } finally {
         setLoading(false)
       }
     }
 
-    fetchReviews()
+    void fetchReviews()
   }, [appId])
 
   // Memoized computation of filtered and sorted reviews, only includes reviews
@@ -106,12 +110,20 @@ export default function Reviews() {
     return reviews
       ?.filter((review) => {
         const reviewTimestamp = review.updated
-        const unixTimestamp = getUnixTime(parseISO(reviewTimestamp))
+        // Fallback to current timestamp if field is blank from RSS
+        const unixTimestamp = reviewTimestamp
+          ? getUnixTime(parseISO(reviewTimestamp))
+          : currentUnixTime
         return unixTimestamp > earliestAllowedTimestamp
       })
       .sort((a, b) => {
-        const aTime = getUnixTime(parseISO(a.updated))
-        const bTime = getUnixTime(parseISO(b.updated))
+        // Fallback to current timestamp if field is blank from RSS
+        const aTime = a.updated
+          ? getUnixTime(parseISO(a.updated))
+          : currentUnixTime
+        const bTime = b.updated
+          ? getUnixTime(parseISO(b.updated))
+          : currentUnixTime
         return bTime - aTime
       })
   }, [reviews])
